@@ -17,11 +17,12 @@ You may like *superglance* if you regularly have the following problems:
 * You need to share common skeleton environment variables for *glance* with your teams
 * You were already a fan of *supernova* on which I HEAVILY based this :)
 
+Questions, comments, and pull requests welcome; here, or richard.goodwin@rackspace.com
 
 
 ### Installation
 
-    git clone git@github.rackspace.com:rich4988/superglance.git
+    git clone git@github.com:rtgoodwin/superglance.git
     cd superglance
     python setup.py install
 
