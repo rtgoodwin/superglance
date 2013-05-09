@@ -20,6 +20,10 @@ import os
 import re
 import subprocess
 import sys
+import logging
+
+keystone_logger=logging.getLogger("keystoneclient")
+keystone_logger.setLevel(logging.INFO)
 
 
 __version__ = '0.7.4'
@@ -152,7 +156,9 @@ class SuperGlance:
         # displayed appropriately.
         #
         # In other news, I hate how python 2.6 does unicode.
-        p = subprocess.Popen(['glance'] + glance_args,
+        glance_args.insert(0, '-k')
+
+	p = subprocess.Popen(['glance'] + glance_args,
             stdout=sys.stdout,
             stderr=sys.stderr,
             env=self.env
