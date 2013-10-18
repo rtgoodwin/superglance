@@ -15,12 +15,14 @@
 #   limitations under the License.
 #
 import ConfigParser
+import glanceclient
 import keyring
+import keystoneclient.v2_0.client as ksclient
+import logging
 import os
 import re
 import subprocess
 import sys
-import logging
 
 keystone_logger=logging.getLogger("keystoneclient")
 keystone_logger.setLevel(logging.INFO)
@@ -30,10 +32,12 @@ __version__ = '0.7.4'
 
 
 class SuperGlance:
-
+    
     def __init__(self):
         self.glance_creds = None
         self.glance_env = None
+        self.keystone_creds = None
+        self.image_url = None
         self.env = os.environ.copy()
 
     def check_deprecated_options(self):
@@ -158,7 +162,7 @@ class SuperGlance:
         # In other news, I hate how python 2.6 does unicode.
         glance_args.insert(0, '-k')
 
-	p = subprocess.Popen(['glance'] + glance_args,
+        p = subprocess.Popen(['glance'] + glance_args,
             stdout=sys.stdout,
             stderr=sys.stderr,
             env=self.env
@@ -166,3 +170,37 @@ class SuperGlance:
 
         # Don't exit until we're sure the subprocess has exited
         p.wait()
+
+    def get_glanceclient(self, env):
+        """
+        Returns python glanceclient object authenticated with superglance cfg.
+        """
+        self.glance_env = env
+        assert self.is_valid_environment(), "Env %s not found in config." % env
+        self.prep_keystone_creds()
+        return glanceclient.Client(self.keystone_creds.get('version', '1'),
+                self.image_url, 
+                token=ksclient.Client(**self.keystone_creds).auth_token)
+
+    def prep_keystone_creds(self):
+        """
+        Prepare credentials for python Client instantiation.
+        """
+        creds = {rm_prefix(k[0].lower()): k[1] for k in self.prep_glance_creds()}
+        if creds.get('image_url'):
+            self.image_url = creds.pop('image_url')
+        self.keystone_creds = creds
+
+
+def rm_prefix(name):
+    """
+    Removes nova_ os_ novaclient_ prefix from string.
+    """
+    if name.startswith('nova_'):
+        return name[5:]
+    elif name.startswith('glanceclient_'):
+        return name[13:]
+    elif name.startswith('os_'):
+        return name[3:]
+    else:
+        return name
