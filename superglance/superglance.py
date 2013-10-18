@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #
-# Copyright 2013 Richard Goodwin (some parts borrowed from Major Hayden's "supernova")
+# Copyright 2013 Richard Goodwin (some parts borrowed from Major Hayden's
+# supernova")
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -24,15 +25,14 @@ import re
 import subprocess
 import sys
 
-keystone_logger=logging.getLogger("keystoneclient")
+keystone_logger = logging.getLogger("keystoneclient")
 keystone_logger.setLevel(logging.INFO)
-
 
 __version__ = '0.7.4'
 
 
 class SuperGlance:
-    
+
     def __init__(self):
         self.glance_creds = None
         self.glance_env = None
@@ -59,7 +59,8 @@ class SuperGlance:
         if self.glance_creds:
             return self.glance_creds
 
-        possible_configs = [os.path.expanduser("~/.superglance"), '.superglance']
+        possible_configs = [os.path.expanduser("~/.superglance"),
+                            '.superglance']
         self.glance_creds = ConfigParser.RawConfigParser()
         self.glance_creds.read(possible_configs)
         if len(self.glance_creds.sections()) < 1:
@@ -119,7 +120,7 @@ class SuperGlance:
                     username = "%s:%s" % (self.glance_env, param)
                 else:
                     global_identifier = re.match(
-                        "USE_KEYRING\['(.*)'\]",value).group(1)
+                        "USE_KEYRING\['(.*)'\]", value).group(1)
                     username = "%s:%s" % ('global', global_identifier)
                 credential = self.password_get(username)
             else:
@@ -179,14 +180,15 @@ class SuperGlance:
         assert self.is_valid_environment(), "Env %s not found in config." % env
         self.prep_keystone_creds()
         return glanceclient.Client(self.keystone_creds.get('version', '1'),
-                self.image_url, 
-                token=ksclient.Client(**self.keystone_creds).auth_token)
+            self.image_url,
+            token=ksclient.Client(**self.keystone_creds).auth_token
+        )
 
     def prep_keystone_creds(self):
         """
         Prepare credentials for python Client instantiation.
         """
-        creds = {rm_prefix(k[0].lower()): k[1] for k in self.prep_glance_creds()}
+        creds = {rm_prefix(k[0]): k[1] for k in self.prep_glance_creds()}
         if creds.get('image_url'):
             self.image_url = creds.pop('image_url')
         self.keystone_creds = creds
@@ -194,13 +196,13 @@ class SuperGlance:
 
 def rm_prefix(name):
     """
-    Removes nova_ os_ novaclient_ prefix from string.
+    Removes NOVA_ OS_ NOVACLIENT_ prefix from string and lowercases.
     """
-    if name.startswith('nova_'):
-        return name[5:]
-    elif name.startswith('glanceclient_'):
-        return name[13:]
-    elif name.startswith('os_'):
-        return name[3:]
+    if name.startswith('NOVA_'):
+        return name[5:].lower()
+    elif name.startswith('GLANCECLIENT_'):
+        return name[13:].lower()
+    elif name.startswith('OS_'):
+        return name[3:].lower()
     else:
-        return name
+        return name.lower()
