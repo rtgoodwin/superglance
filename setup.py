@@ -15,16 +15,15 @@
 #   limitations under the License.
 #
 from setuptools import setup
-from superglance import superglance
 
 
 setup(
     name='superglance',
-    version=superglance.__version__,
+    version='0.7.5',
     author='Richard Goodwin (but mostly Major Hayden)',
     author_email='richard.goodwin@rackspace.com',
     description="glanceclient wrapper for multiple glance environments",
-    install_requires=['keyring'],
+    install_requires=['six>=1.4.1', 'keyring', 'simplejson', 'pycrypto', 'python-glanceclient'],
     packages=['superglance'],
     url='https://github.com/rtgoodwin/superglance',
     entry_points={
