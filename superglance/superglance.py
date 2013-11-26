@@ -179,7 +179,7 @@ class SuperGlance:
         self.glance_env = env
         assert self.is_valid_environment(), "Env %s not found in config." % env
         self.prep_keystone_creds()
-        return glanceclient.Client(self.keystone_creds.get('version', '1'),
+        return glanceclient.Client(self.keystone_creds.pop('version', '1'),
             self.image_url,
             token=ksclient.Client(**self.keystone_creds).auth_token
         )
