@@ -1,7 +1,7 @@
 superglance
 ===========
 
-A helpful utility, similar to supernova, for working with OpenStack Glance deployments.  
+A helpful utility, similar to supernova, for working with OpenStack Glance deployments.
 Shamelessly and gratefully borrowed in large part from Major Hayden's *supernova*:
 http://rackerhacker.github.com/supernova/
 
@@ -51,9 +51,16 @@ Here's an example of two environments, **production** and **development**:
     OS_TENANT_ID = glance-production
     OS_IMAGE_URL = https://223.223.223.223:9292/v1
 
+    When you use *superglance*, you'll refer to these environments as **production** and **development**.  Every environment is specified by its configuration header name.
 
+### Configuration Groups
 
-When you use *superglance*, you'll refer to these environments as **production** and **development**.  Every environment is specified by its configuration header name.
+Configuration groups allow you to run the same command across multiple environments.  This is defined in your `.superglance` config file as well.
+
+Here's an example of how you would define an [all] group for the above example:
+
+    [all]
+    GROUP=['production', 'development']
 
 ### Usage
 
@@ -83,6 +90,19 @@ You may optionally pass `--debug` as the first argument (before the environment 
     superglance --debug production list
 
 As before, any text after the environment argument is passed directly to *glance*.
+
+##### Logging
+
+File logging is enabled by default and will save a `superglance.log` file to the current directory.  Logging can be configured by defining a `[log]` section in your `.superglance` config file with level, handler and filename(path) as config options.
+
+Here's an example of specifying an alternative file location and log level:
+
+    [log]
+    handler=FileHandler
+    level=debug
+    filename=log/superglance.log
+
+Setting the handler to **NullHandler** will disable logging as well.
 
 ##### Listing your configured environments
 
@@ -115,10 +135,10 @@ You'll need to confirm that you want the data from your keychain displayed in pl
 Once you've stored your sensitive data, simply adjust your *superglance* configuration file:
 
     #glance_API_KEY = really_sensitive_api_key_here
-    
+
     # If using storage per environment
     glance_API_KEY = USE_KEYRING
-    
+
     # If using global storage
     glance_API_KEY = USE_KEYRING['MyCompanyLDAPPassword']
 
@@ -127,3 +147,15 @@ When *superglance* reads your configuration file and spots a value of `USE_KEYRI
 #### A brief note about environment variables
 
 *superglance* will only replace and/or append environment variables to the already present variables for the duration of the *glance* execution. If you have `glance_USERNAME` set outside the script, it won't be used in the script since the script will pull data from `~/.superglance` and use it to run *glance*. In addition, any variables which are set prior to running *superglance* will be left unaltered when the script exits.
+
+#### Python Integration
+
+Superglance can also be used to return a python-glanceclient object.  This can allow superglance to manage your credentials for multi-env python apps etc.
+
+Here's an example of retrieving a image object for the [production] environment from above:
+
+    import superglance.superglance as superglance
+    glance_obj = superglance.Superglance().get_glanceclient('production')
+    image = glance_obj.images.get('aaaaaaaa-bbbb-abab-cccc-dddddddd')
+
+Happy hacking!

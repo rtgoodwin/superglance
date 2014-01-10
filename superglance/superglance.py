@@ -25,10 +25,9 @@ import re
 import subprocess
 import sys
 
-keystone_logger = logging.getLogger("keystoneclient")
-keystone_logger.setLevel(logging.INFO)
+LOG = logging.getLogger(__name__)
 
-__version__ = '0.7.4'
+__version__ = '0.7.5'
 
 
 class SuperGlance:
@@ -46,9 +45,11 @@ class SuperGlance:
         versions.
         """
         creds = self.get_glance_creds()
-        # if creds.has_option(self.glance_env, 'insecure'):
-        #     print "WARNING: the 'insecure' option is deprecated. " \
-        #           "Consider using NOVACLIENT_INSECURE=1 instead."
+        if creds.has_option(self.glance_env, 'insecure'):
+            msg = "WARNING: the 'insecure' option is deprecated. " \
+                "Consider using GLANCECLIENT_INSECURE=1 instead."
+            print msg
+            LOG.warning(msg)
 
     def get_glance_creds(self):
         """
@@ -131,6 +132,7 @@ class SuperGlance:
             if not credential:
                 msg = "Attempted to retrieve a credential for %s but " \
                       "couldn't find it within the keyring." % username
+                LOG.error(msg)
                 raise Exception(msg)
 
             creds.append((param, credential))
@@ -161,13 +163,19 @@ class SuperGlance:
         # displayed appropriately.
         #
         # In other news, I hate how python 2.6 does unicode.
-        glance_args.insert(0, '-k')
-
+        if glance_args[0] != '-k':
+            glance_args.insert(0, '-k')
+        LOG.info('Running glance client in env %r with args %r',
+                 self.glance_env, glance_args)
+        print '-- %s --' % self.glance_env
         p = subprocess.Popen(['glance'] + glance_args,
-            stdout=sys.stdout,
-            stderr=sys.stderr,
-            env=self.env
-        )
+                             stdout=subprocess.PIPE,
+                             stderr=sys.stderr,
+                             env=self.env
+                             )
+        for line in p.stdout:
+            sys.stdout.write(line)
+            LOG.info(line)
 
         # Don't exit until we're sure the subprocess has exited
         p.wait()
@@ -179,7 +187,8 @@ class SuperGlance:
         self.glance_env = env
         assert self.is_valid_environment(), "Env %s not found in config." % env
         self.prep_keystone_creds()
-        return glanceclient.Client(self.keystone_creds.pop('version', '1'),
+        return glanceclient.Client(
+            self.keystone_creds.pop('version', '1'),
             self.image_url,
             token=ksclient.Client(**self.keystone_creds).auth_token
         )
@@ -198,11 +207,9 @@ def rm_prefix(name):
     """
     Removes NOVA_ OS_ NOVACLIENT_ prefix from string and lowercases.
     """
-    if name.startswith('NOVA_'):
-        return name[5:].lower()
-    elif name.startswith('GLANCECLIENT_'):
-        return name[13:].lower()
-    elif name.startswith('OS_'):
-        return name[3:].lower()
-    else:
-        return name.lower()
+    names = name.split('_')
+    for prefix in ['NOVA', 'GLANCECLIENT', 'OS']:
+        if names[0].upper() == prefix:
+            del names[0]
+            return "_".join(names).lower()
+    return name.lower()
