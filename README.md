@@ -51,6 +51,8 @@ Here's an example of two environments, **production** and **development**:
     OS_TENANT_ID = glance-production
     OS_IMAGE_URL = https://223.223.223.223:9292/v1
 
+    When you use *superglance*, you'll refer to these environments as **production** and **development**.  Every environment is specified by its configuration header name.
+
 ### Configuration Groups
 
 Configuration groups allow you to run the same command across multiple environments.  This is defined in your `.superglance` config file as well.
@@ -59,8 +61,6 @@ Here's an example of how you would define an [all] group for the above example:
 
     [all]
     GROUP=['production', 'development']
-
-When you use *superglance*, you'll refer to these environments as **production** and **development**.  Every environment is specified by its configuration header name.
 
 ### Usage
 
@@ -102,7 +102,7 @@ Here's an example of specifying an alternative file location and log level:
     level=debug
     filename=log/superglance.log
 
-Setting the handler to NullHandler will disable logging as well.
+Setting the handler to **NullHandler** will disable logging as well.
 
 ##### Listing your configured environments
 
