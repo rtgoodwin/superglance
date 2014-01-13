@@ -21,6 +21,9 @@ Questions, comments, and pull requests welcome; here, or richard.goodwin@rackspa
 
 
 ### Installation
+
+    Install git if not already
+
     Ubuntu:
     apt-get install python-dev
     apt-get install libffi-dev
