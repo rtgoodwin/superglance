@@ -24,6 +24,8 @@ Questions, comments, and pull requests welcome; here, or richard.goodwin@rackspa
     Ubuntu:
     apt-get install python-dev
     apt-get install libffi-dev
+    apt-get install libssl-dev
+    apt-get install python-pip
 
     git clone git@github.com:rtgoodwin/superglance.git
     cd superglance
@@ -155,7 +157,7 @@ Superglance can also be used to return a python-glanceclient object.  This can a
 Here's an example of retrieving a image object for the [production] environment from above:
 
     import superglance.superglance as superglance
-    glance_obj = superglance.Superglance().get_glanceclient('production')
+    glance_obj = superglance.SuperGlance().get_glanceclient('production')
     image = glance_obj.images.get('aaaaaaaa-bbbb-abab-cccc-dddddddd')
 
 Happy hacking!

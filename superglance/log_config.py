@@ -29,7 +29,7 @@ def setup_logging():
     # Get log config from super config
     try:
         config = superglance.SuperGlance().get_glance_creds().items("log")
-    except ConfigParser.NoSectionError:
+    except (ConfigParser.NoSectionError, AttributeError):
         config = {}
     for param, value in config:
         if param.lower() == 'level':

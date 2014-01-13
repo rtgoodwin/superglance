@@ -16,6 +16,7 @@
 #   limitations under the License.
 #
 import ConfigParser
+import executable
 import glanceclient
 import keyring
 import keystoneclient.v2_0.client as ksclient
@@ -167,7 +168,7 @@ class SuperGlance:
             glance_args.insert(0, '-k')
         LOG.info('Running glance client in env %r with args %r',
                  self.glance_env, glance_args)
-        print '-- %s --' % self.glance_env
+        print '[ %s ]' % executable.rwrap(self.glance_env)
         p = subprocess.Popen(['glance'] + glance_args,
                              stdout=subprocess.PIPE,
                              stderr=sys.stderr,
