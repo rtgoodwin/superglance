@@ -197,7 +197,8 @@ class SuperGlance:
         """
         Prepare credentials for python Client instantiation.
         """
-        creds = {rm_prefix(k[0]): k[1] for k in self.prep_glance_creds()}
+        creds = dict((rm_prefix(k[0].lower()), k[1])
+                     for k in self.prep_nova_creds())
         if creds.get('image_url'):
             self.image_url = creds.pop('image_url')
         self.keystone_creds = creds
