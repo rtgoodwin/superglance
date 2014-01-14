@@ -24,7 +24,7 @@ def setup_logging():
     # Defaults
     filename = 'superglance.log'
     level = 'INFO'
-    handler = 'FileHandler'  # NullHandler to disable
+    handler = 'NullHandler'  # FileHandler to enable
 
     # Get log config from super config
     try:
