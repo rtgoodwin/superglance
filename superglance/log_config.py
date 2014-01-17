@@ -24,12 +24,12 @@ def setup_logging():
     # Defaults
     filename = 'superglance.log'
     level = 'INFO'
-    handler = 'FileHandler'  # NullHandler to disable
+    handler = 'FileHandler'  # NullHandler to enable
 
     # Get log config from super config
     try:
         config = superglance.SuperGlance().get_glance_creds().items("log")
-    except ConfigParser.NoSectionError:
+    except (ConfigParser.NoSectionError, AttributeError):
         config = {}
     for param, value in config:
         if param.lower() == 'level':
